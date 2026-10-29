@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CineCatálogo</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="/" aria-label="CineCatálogo">Cine<span>Catálogo</span></a>
+    <nav id="nav" class="nav"></nav>
+  </header>
+
+  <main>
+    <section id="anuncios" class="anuncios" aria-label="Anúncios" hidden></section>
+
+    <section class="filtros" aria-label="Filtrar filmes">
+      <form id="form-filtros" autocomplete="off">
+        <label class="campo grande">Nome
+          <input id="f-nome" type="search" placeholder="Buscar por nome...">
+        </label>
+        <label class="campo">Categoria
+          <input id="f-categoria" list="lista-categorias" placeholder="Ex.: ação">
+          <datalist id="lista-categorias"></datalist>
+        </label>
+        <label class="campo">Classificação
+          <select id="f-classificacao">
+            <option value="">Todas</option>
+            <option>L</option><option>10</option><option>12</option>
+            <option>14</option><option>16</option><option>18</option>
+          </select>
+        </label>
+        <label class="campo">Idade máx.
+          <input id="f-idade" type="number" min="0" max="18" placeholder="anos">
+        </label>
+        <label class="campo">Duração máx.
+          <input id="f-duracao" type="number" min="1" placeholder="min">
+        </label>
+        <label class="campo">Nota mín.
+          <input id="f-nota" type="number" min="0" max="10" step="0.5" placeholder="0–10">
+        </label>
+        <button type="button" id="btn-limpar" class="btn ghost">Limpar</button>
+      </form>
+    </section>
+
+    <section aria-live="polite">
+      <p id="status-lista" class="status"></p>
+      <div id="grade" class="grade"></div>
+      <div class="mais"><button id="btn-mais" class="btn" hidden>Carregar mais</button></div>
+    </section>
+  </main>
+
+  <!-- Login e cadastro -->
+  <dialog id="dlg-auth">
+    <div class="dlg-head">
+      <div class="abas" role="tablist">
+        <button class="aba ativa" data-aba="login" role="tab">Entrar</button>
+        <button class="aba" data-aba="cadastro" role="tab">Cadastrar</button>
+      </div>
+      <button class="fechar" data-close aria-label="Fechar">×</button>
+    </div>
+    <form id="form-login" class="form">
+      <label>E-mail <input name="email" type="email" required autocomplete="email"></label>
+      <label>Senha <input name="senha" type="password" required autocomplete="current-password"></label>
+      <button class="btn primary" type="submit">Entrar</button>
+    </form>
+    <form id="form-cadastro" class="form" hidden>
+      <label>Nome <input name="nome" required autocomplete="name"></label>
+      <label>E-mail <input name="email" type="email" required autocomplete="email"></label>
+      <label>Idade <input name="idade" type="number" min="0" max="130" required></label>
+      <label>Senha (mín. 6 caracteres) <input name="senha" type="password" minlength="6" required autocomplete="new-password"></label>
+      <button class="btn primary" type="submit">Criar conta</button>
+    </form>
+  </dialog>
+
+  <!-- Detalhe do filme -->
+  <dialog id="dlg-filme" class="grande">
+    <button class="fechar" data-close aria-label="Fechar">×</button>
+    <div id="corpo-filme"></div>
+  </dialog>
+
+  <!-- Meus ingressos -->
+  <dialog id="dlg-ingressos">
+    <div class="dlg-head"><h2>Meus ingressos</h2><button class="fechar" data-close aria-label="Fechar">×</button></div>
+    <div id="corpo-ingressos"></div>
+  </dialog>
+
+  <!-- Painel do administrador -->
+  <dialog id="dlg-admin" class="grande">
+    <div class="dlg-head">
+      <div class="abas" role="tablist">
+        <button class="aba ativa" data-aba="filme" role="tab">Cadastrar filme</button>
+        <button class="aba" data-aba="tmdb" role="tab">Importar do TMDB</button>
+        <button class="aba" data-aba="anuncio" role="tab">Novo anúncio</button>
+      </div>
+      <button class="fechar" data-close aria-label="Fechar">×</button>
+    </div>
+
+    <form id="form-filme" class="form dois">
+      <label class="span2">Nome <input name="nome" required></label>
+      <label>Duração (min) <input name="duracao" type="number" min="1" required></label>
+      <label>Idade mínima <input name="idade" type="number" min="0" max="18" value="0" required></label>
+      <label>Classificação
+        <select name="classificacao">
+          <option value="">Automática (pela idade)</option>
+          <option>L</option><option>10</option><option>12</option><option>14</option><option>16</option><option>18</option>
+        </select>
+      </label>
+      <label>Categorias (separe por vírgula) <input name="categorias" placeholder="Ação, Ficção"></label>
+      <label class="span2">URL do pôster <input name="poster_url" type="url" placeholder="https://..."></label>
+      <label class="span2">Sinopse <textarea name="sinopse" rows="3"></textarea></label>
+      <button class="btn primary span2" type="submit">Cadastrar filme</button>
+    </form>
+
+    <form id="form-tmdb" class="form" hidden>
+      <p class="dica">Informe o ID do filme no TMDB (o número no final da URL da página dele). Os dados são copiados e o pôster é guardado no armazenamento (S3).</p>
+      <label>ID do TMDB <input name="tmdb_id" type="number" min="1" required placeholder="603"></label>
+      <button class="btn primary" type="submit">Importar filme</button>
+    </form>
+
+    <form id="form-anuncio" class="form" hidden>
+      <label>Título <input name="titulo" required></label>
+      <label>URL da imagem <input name="imagem_url" type="url" placeholder="https://..."></label>
+      <label>Link de destino (opcional) <input name="link" type="url" placeholder="https://..."></label>
+      <label>Filme relacionado
+        <select name="filme_id"><option value="">Nenhum</option></select>
+      </label>
+      <button class="btn primary" type="submit">Publicar anúncio</button>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
